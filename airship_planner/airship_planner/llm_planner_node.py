@@ -10,6 +10,7 @@ import yaml
 
 from airship_interface.srv import AirshipInstruct, AirshipGrasp, AirshipNav
 from airship_planner.task_planner import LLAMA_Task_Planner
+from airship_planner.task_planner import GPT4_Task_Planner
 
 class LLMPlanner(Node):
 
@@ -25,12 +26,20 @@ class LLMPlanner(Node):
             self.config = yaml.safe_load(file)
 
         self.declare_parameter('semantic_map_dir', os.path.join(curr_file_dir, '../map/'))
-        self.declare_parameter('semantic_map_file', 'semantic_map.yaml')
-        self.declare_parameter('llm_server_url', 'localhost')
+        #self.declare_parameter('semantic_map_file', 'semantic_map.yaml')
+        #self.declare_parameter('llm_server_url', 'localhost')
 
         semantic_map = self.get_parameter('semantic_map_dir').value + self.config.get('semantic_map_file')
+
+        """
+        # LLAMA3.1
         server_url = self.config.get('llm_server_url')
         self._task_planner = LLAMA_Task_Planner(server_url, semantic_map)
+        """
+        # GPT4
+        server_api_key = self.config.get('openai_api_key')
+        server_api_base_url = self.config.get('openai_api_url')
+        self._task_planner = GPT4_Task_Planner(server_api_key, server_api_base_url, semantic_map)
 
         service_cb_group = MutuallyExclusiveCallbackGroup()
         self._planner_srv = self.create_service(
@@ -72,7 +81,7 @@ class LLMPlanner(Node):
     def _task_scheduler(self, task_list):
         self.get_logger().info("Start LLM planner scheduling...")
 
-        for job in task_list:
+        for job_id, job in enumerate(task_list):
             task = job[0]
             action = job[1]
             if task == 'go_to':
@@ -90,7 +99,7 @@ class LLMPlanner(Node):
                     self.get_logger().warn(
                         "Cannot navigate to %s. Navigating error: %s" %
                         (action[0], res.status))
-                    return AirshipInstruct.Response.NAV_FAIL
+                    return AirshipInstruct.Response.NAV_FAIL, job_id
                 else:
                     self.get_logger().info("Reach %s..." % action[0])
 
@@ -115,7 +124,7 @@ class LLMPlanner(Node):
                     else:
                         self.get_logger().warn(
                             "Unknown grasping error, return: %d " % (res.ret))
-                    return AirshipInstruct.Response.PICK_FAIL
+                    return AirshipInstruct.Response.PICK_FAIL, job_id
 
             elif task == 'place':
                 self.get_logger().info("Start Placing %s..." % action[0])
@@ -127,15 +136,15 @@ class LLMPlanner(Node):
                 if res.ret != AirshipGrasp.Response.SUCCESS:
                     self.get_logger().warn("Placing %s error: %s" %
                                            (action[0], res.status))
-                    return AirshipInstruct.Response.PLACE_FAIL
+                    return AirshipInstruct.Response.PLACE_FAIL, job_id
                 else:
                     self.get_logger().info("Finish placing %s..." % action[0])
             else:
                 self.get_logger().warn("I cannot handle the %s task..." % task)
-                return AirshipInstruct.Response.UNKOWN_TASK
+                return AirshipInstruct.Response.UNKOWN_TASK, job_id
 
         self.get_logger().info("LLM planning done...")
-        return AirshipInstruct.Response.SUCCESS
+        return AirshipInstruct.Response.SUCCESS, -1
 
     def instruct_callback(self, request, response):
         if self._busy:
@@ -144,6 +153,8 @@ class LLMPlanner(Node):
             return response
 
         instruct_msg = request.msg
+        not_found_list = []
+
         if not len(instruct_msg):
             self.get_logger().warning('Receive an empty instruction')
             response.ret = AirshipInstruct.Response.EMPTY_INST
@@ -154,7 +165,30 @@ class LLMPlanner(Node):
             'Parsing users\' instruction: {}'.format(instruct_msg))
         task_list = self._task_planner.get_tasks(instruct_msg)
         self.get_logger().info("LLM planned task list: {}".format(task_list))
-        response.ret = self._task_scheduler(task_list)
+
+        response.ret, error_id = self._task_scheduler(task_list)
+        current_task = 0
+
+        while response.ret != AirshipGrasp.Response.SUCCESS:
+
+            if response.ret == AirshipGrasp.Response.FAILED_TO_FIND_OBJECT:
+                not_found_list.append([task_list[error_id - 1][1][0], task_list[error_id - 1][1][1], task_list[error_id][1][0]])
+                executed_id = 4 * current_task + error_id # each task contains four jobs [goto pick goto place]
+                current_task += error_id // 4
+                task_list = self._task_planner.replan_get_tasks(current_task, not_found_list)
+                self.get_logger().info("LLM replanned task list: {}".format(task_list))
+                task_list = task_list[executed_id - 1:]
+                response.ret, error_id = self._task_scheduler(task_list)
+
+            elif response.ret == AirshipGrasp.Response.FAILED_TO_REACH_OBJECT:
+                task_list[error_id - 1][1][1] = [AirshipGrasp.Response.x, AirshipGrasp.Response.y, 0]
+                task_list = task_list[error_id-1:]
+                response.ret, error_id = self._task_scheduler(task_list)
+
+            elif response.ret == AirshipGrasp.Response.PICK_FAIL:
+                task_list[error_id - 1][1][1] = [AirshipGrasp.Response.x, AirshipGrasp.Response.y, 0]
+                task_list = task_list[error_id-1:]
+                response.ret, error_id = self._task_scheduler(task_list)
 
         self._busy = False
         return response

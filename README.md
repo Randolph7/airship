@@ -211,7 +211,7 @@ We use [Ollama](www.ollama.com) to provide LLM service.
 * Prerequisites: 
   * A properly configured local network.
   * Lamma3.1 70B model.
-  * A server equipped with powerful Nvidia GPUs. We have successfully run LLaMA 3.1 70B on two Nvidia A6000 cards.
+  * A server equipped with powerful Nvidia GPUs. We have successfully run LLaMA 3.1 70B on two Nvidia A1000 cards.
 
 * Ollama configurations
 ```shell
@@ -317,6 +317,9 @@ cd ${DIR_AIRSHIP}
 source install/local_setup.bash
 conda activate airship_perception
 ros2 launch airship_perception run_airship_perception_node.launch.py
+# In case of ModuleNotFoundError reported in seg_service_nod.py during ros node launching, add the following code in seg_service_node.py
+# import sys
+# sys.path.append('PATH to GroundingDINO package on your computer')
 ```
 
 * airship_grasp
@@ -325,6 +328,8 @@ cd ${DIR_AIRSHIP}
 source install/local_setup.bash
 conda activate airship_grasp
 ros2 launch airship_grasp grasp.launch.py
+# In case of ModuleNotFoundError reported in graspnet.py during ros node launching, do as follows
+# cp ${DIR_AIRSHIP}/src/airship/airship_grasp/doc/3rd_party/graspnet.py ${DIR_AIRSHIP}/src/airship/airship_grasp/lib/Scale_Balanced_Grasp/models/graspnet.py 
 ```
 
 * airship_planner
@@ -334,7 +339,7 @@ source install/local_setup.bash
 # Remember to start LLM service in remote server. Update your llm_server_url address in "airship_planner.yaml".
 ros2 launch airship_planner airship_planner_launch.py
 # You can use the service to send a command (in another terminal).
-ros2 service call /airship_grasp/grasp_server airship_interface/srv/AirshipGrasp "{task: pick, obj:apple}"
+ros2 service call /airship_planner/planner_server airship_interface/srv/AirshipInstruct "msg: I am at the desk. Fetch a flower, a cup, and a pen for me"
 ```
 
 * airship_chat
