@@ -124,7 +124,7 @@ class GraspServer(Node):
                     response.x, response.y, response.z = grasp_coords[:3]
                     self.get_logger().info(f'Cannot reach {obj}')
             else:
-                grasp_coords = self.ik.select_heightest_grasp(grasp_pose, center_mask_point, trans_gripper2base)
+                grasp_coords = self.ik.select_best_grasp(grasp_pose, center_mask_point, trans_gripper2base)
                 if self.excute_grasp(grasp_coords):
                     response.ret = AirshipGrasp.Response.SUCCESS
                     self.get_logger().info(f'Successfully grasped {obj}')
