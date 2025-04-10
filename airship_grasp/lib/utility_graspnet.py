@@ -39,9 +39,10 @@ class UtilityGraspNet:
         )
         net.to(self.device)
         # Load the checkpoint
-        checkpoint_path = self.model_checkpoint_path
-        if not os.path.isfile(checkpoint_path):
-            raise FileNotFoundError(f"Checkpoint file not found at {checkpoint_path}")
+        # checkpoint_path = self.model_checkpoint_path
+        # if not os.path.isfile(checkpoint_path):
+            # raise FileNotFoundError(f"Checkpoint file not found at {checkpoint_path}")
+        checkpoint_path = '/home/airsbot2/airship/src/airship/airship_grasp/lib/Scale_Balanced_Grasp/logs/log_full_model/checkpoint.tar'    
         checkpoint = torch.load(checkpoint_path, map_location=self.device)
         net.load_state_dict(checkpoint['model_state_dict'])
         start_epoch = checkpoint['epoch']
