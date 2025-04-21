@@ -130,6 +130,21 @@ Check the directory layout:
 
 ```
 tree ~/sensors -L 2
+.
+├── imu_ws
+│   └── src
+├── rslidar_ws
+│   ├── build
+│   ├── install
+│   ├── log
+│   └── src
+└── zed_ws
+    ├── build
+    ├── install
+    ├── log
+    └── src
+
+12 directories, 0 files
 ```
 
 ------
