@@ -3,14 +3,15 @@
 ## System Requirements
 
 - **Hardware**: Nvidia Jetson AGX Orin
-- **Operating System**: JetPack 6.0 (based on Ubuntu 22.04), bundled with CUDA 12.2
+- **Operating System**: JetPack 6.0 (based on Ubuntu 22.04), bundled with CUDA 12.2 For more details, please refer to the official [NVIDIA JetPack 6.0 documentation](https://docs.nvidia.com/jetson/archives/jetpack-archived/jetpack-60/index.html).
+
 - **Python**: Use Python 3.10 across all environments (use conda to manage environment-specific versions)
 
 ------
 
 ## Source Code Acquisition
 
-Flash the device using NVIDIA's official tools, selecting both CUDA and Linux options.
+Flash the device using NVIDIA's official tools, select JetPack 6.0 (based on Ubuntu 22.04) using [NVIDIA SDK Manager](https://developer.nvidia.com/sdk-manager).
 
 > ⚠️ Important: The username must be set to:
 
@@ -70,104 +71,6 @@ echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 
 ------
 
-## Sensor Drivers Installation
-
-Create a separate folder for sensor drivers:
-
-```
-mkdir ~/sensors
-cd ~/sensors
-```
-
-### ZED Camera
-
-```
-# Download and install ZED SDK
-wget https://download.stereolabs.com/zedsdk/4.1/l4t36.3/jetsons
-chmod +x ZED_SDK_Tegra_L4T36.3_v4.1.4.zstd.run
-./ZED_SDK_Tegra_L4T36.3_v4.1.4.zstd.run silent runtime_only skip_drivers
-
-# ROS2 Wrapper
-mkdir -p ~/sensors/zed_ws/src && cd ~/sensors/zed_ws/src
-git clone https://github.com/stereolabs/zed-ros2-wrapper.git
-git checkout da7f6ac
-git switch -c 4.1.4
-git submodule update --init --recursive
-
-cd ~/sensors/zed_ws
-rosdep update
-rosdep install --from-paths src --ignore-src -r -y
-colcon build --symlink-install --cmake-args=-DCMAKE_BUILD_TYPE=Release
-```
-
-------
-
-### RoboSense LiDAR
-
-```
-mkdir -p ~/sensors/rslidar_ws/src && cd ~/sensors/rslidar_ws/src
-git clone https://github.com/RoboSense-LiDAR/rslidar_sdk.git
-cd rslidar_sdk && git submodule update --init
-cd ..
-git clone https://github.com/RoboSense-LiDAR/rslidar_msg.git
-sudo apt-get install libpcap-dev
-colcon build --packages-up-to rslidar_sdk
-```
-
-------
-
-### HiPNUC IMU
-
-```
-mkdir -p ~/sensors/imu_ws/src && cd ~/sensors/imu_ws/src
-git clone https://github.com/hipnuc/products.git
-cd products/examples/ROS2/hipnuc_ws
-sudo apt install ros-humble-gps-msgs
-colcon build
-```
-
-Check the directory layout:
-
-```
-tree ~/sensors -L 2
-.
-├── imu_ws
-│   └── src
-├── rslidar_ws
-│   ├── build
-│   ├── install
-│   ├── log
-│   └── src
-└── zed_ws
-    ├── build
-    ├── install
-    ├── log
-    └── src
-
-12 directories, 0 files
-```
-
-------
-
-### Add to Environment
-
-Append the following lines to your `.bashrc`:
-
-```
-source ~/sensors/rslidar_ws/install/local_setup.bash
-source ~/sensors/imu_ws/src/products/examples/ROS2/hipnuc_ws/install/local_setup.bash
-source ~/sensors/zed_ws/install/local_setup.bash
-```
-
-Test each driver:
-
-```
-ros2 launch zed_wrapper zed_camera.launch.py camera_model:=zed2
-ros2 launch rslidar_sdk start.py
-ros2 launch hipnuc_imu imu_spec_msg.launch.py
-```
-
-------
 
 ## Module Installation
 
@@ -415,6 +318,10 @@ And the it will output the planning results like:
 
 Install Isaac Sim 4.2.0 from [NVIDIA's official download page](https://docs.omniverse.nvidia.com/4.5.0/installation/download.html).
 
+### Server Environment for Isaac Sim
+
+The server used to run Isaac Sim is equipped with an Intel Core i5-13600KF CPU with 64GB memory and an NVIDIA RTX 4090 GPU is our environment.
+
 Ensure both Orin and the host have ROS 2 Humble installed.
 
 Verify with:
@@ -442,3 +349,135 @@ ros2 run demo_nodes_cpp talker
 ```
 
 If you see "Hello World" messages arriving on the host, your network setup is successful.
+
+
+## Jetson Orin – Isaac Sim Environment Setup Q&A
+
+
+### Q1: Where can I download Isaac Sim? Which version is recommended?
+
+You can download [Isaac Sim 4.2.0](https://docs.isaacsim.omniverse.nvidia.com/4.5.0/installation/download.html) directly from the official NVIDIA Omniverse page. No need for Omniverse Launcher.
+
+---
+
+### Q2: Where is the installation guide?
+
+Follow the workstation installation documentation:  
+👉 [Install Workstation — Isaac Sim Docs](https://docs.isaacsim.omniverse.nvidia.com/4.5.0/installation/install_workstation.html)
+
+---
+
+### Q3: How to verify both machines are on the same network?
+
+1. Run `ifconfig` to check IP addresses.
+2. Use `ping`:
+
+```bash
+ping <other-machine-IP>
+```
+
+Example output:
+
+```
+64 bytes from 10.60.2.107: icmp_seq=1 ttl=63 time=11.7 ms
+```
+
+---
+
+### Q4: How to set up ROS 2 domain?
+
+On both machines:
+
+```bash
+export ROS_DOMAIN_ID=1
+echo $ROS_DOMAIN_ID
+```
+
+Output should be:
+
+```
+1
+```
+
+---
+
+### Q5: What if the machines can’t ping each other?
+
+Use `ip route`:
+
+```bash
+ip route
+```
+
+To assign static IP manually (example):
+
+```bash
+sudo ip addr add 192.168.1.100/24 dev eth0
+sudo ip route add default via 192.168.1.1
+```
+
+---
+
+### Q6: Ping works, but ROS 2 messages don’t arrive?
+
+Check firewall:
+
+```bash
+sudo ufw status verbose
+sudo ufw disable
+```
+
+---
+
+### Q7: How to verify if packets arrive at the NIC?
+
+Example using `tcpdump` on SSH port:
+
+```bash
+sudo tcpdump -i eth0 tcp port 22
+```
+
+Then test:
+
+```bash
+ssh user@192.168.1.100
+```
+
+If successful, packets will be logged.
+
+---
+
+### Q8: How to test application-layer UDP?
+
+Create `udp_listener.py`:
+
+```python
+import socket
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.bind(("0.0.0.0", 8888))
+print("Listening on port 8888")
+while True:
+    data, addr = sock.recvfrom(1024)
+    print(f"Received from {addr}: {data.decode()}")
+```
+
+Run it:
+
+```bash
+python3 udp_listener.py
+```
+
+From another machine:
+
+```bash
+echo "hello" | nc -u <listener-IP> 8888
+```
+
+If blocked, disable firewall:
+
+```bash
+sudo systemctl stop firewalld
+```
+
+---
