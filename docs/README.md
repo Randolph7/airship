@@ -367,7 +367,17 @@ Follow the workstation installation documentation:
 
 ---
 
-### Q3: How to verify both machines are on the same network?
+### Q3: Where is the usd file for Isaac simulation?
+
+Under the path:
+
+```bash
+airship_sim/airship/airsbot2_manipulator_ros2_office.usd
+```
+
+---
+
+### Q4: How to verify both machines are on the same network?
 
 1. Run `ifconfig` to check IP addresses.
 2. Use `ping`:
@@ -384,7 +394,7 @@ Example output:
 
 ---
 
-### Q4: How to set up ROS 2 domain?
+### Q5: How to set up ROS 2 domain?
 
 On both machines:
 
@@ -401,7 +411,7 @@ Output should be:
 
 ---
 
-### Q5: What if the machines can’t ping each other?
+### Q6: What if the machines can’t ping each other?
 
 Use `ip route`:
 
@@ -418,7 +428,7 @@ sudo ip route add default via 192.168.1.1
 
 ---
 
-### Q6: Ping works, but ROS 2 messages don’t arrive?
+### Q7: Ping works, but ROS 2 messages don’t arrive?
 
 Check firewall:
 
@@ -429,7 +439,7 @@ sudo ufw disable
 
 ---
 
-### Q7: How to verify if packets arrive at the NIC?
+### Q8: How to verify if packets arrive at the NIC?
 
 Example using `tcpdump` on SSH port:
 
@@ -447,7 +457,7 @@ If successful, packets will be logged.
 
 ---
 
-### Q8: How to test application-layer UDP?
+### Q9: How to test application-layer UDP?
 
 Create `udp_listener.py`:
 
