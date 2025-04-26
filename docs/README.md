@@ -491,3 +491,8 @@ sudo systemctl stop firewalld
 ```
 
 ---
+
+### Q10: Can not load the airship model into Isacc Sim correctly?
+
+Some of the simulation resource are online, sometimes it might cause mistake due to the network. You can download the asset and use it locally. The instructions are here [Asset]([Setup FAQ — Isaac Sim Documentation](https://docs.isaacsim.omniverse.nvidia.com/4.2.0/installation/install_faq.html#assets-and-nucleus)).
+
