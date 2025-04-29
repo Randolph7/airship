@@ -350,6 +350,30 @@ ros2 run demo_nodes_cpp talker
 
 If you see "Hello World" messages arriving on the host, your network setup is successful.
 
+## Testcase & Demo
+
+We provide some simple scripts to run the demo under the path:
+
+```
+airsbot2/benchmark
+```
+
+Since different environments are required for certain component, we use TMUX to integrate the windows.
+
+You can install TMUX by:
+
+```
+sudo apt install tmux
+```
+
+Then you can simple run the demo by:
+
+```
+cd airsbot2/benchmark
+./run.sh
+```
+
+It will takes a while to boot up and after that you can type your instruction.
 
 ## Jetson Orin – Isaac Sim Environment Setup Q&A
 
