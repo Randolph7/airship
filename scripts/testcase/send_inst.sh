@@ -3,7 +3,7 @@
 source ~/airship/install/local_setup.bash 
 
 # Input
-echo "Enter your instrucitons："
+echo "Enter your instrucitons:"
 read -r MSG
 
 # Check empty

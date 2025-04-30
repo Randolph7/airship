@@ -355,7 +355,7 @@ If you see "Hello World" messages arriving on the host, your network setup is su
 We provide some simple scripts to run the demo under the path:
 
 ```
-airsbot2/benchmark
+airship/scripts/testcase
 ```
 
 Since different environments are required for certain component, we use TMUX to integrate the windows.
@@ -369,8 +369,8 @@ sudo apt install tmux
 Then you can simple run the demo by:
 
 ```
-cd airsbot2/benchmark
-./run.sh
+cd airship/scripts/testcase
+./run_isaac.sh
 ```
 
 It will takes a while to boot up and after that you can type your instruction.
