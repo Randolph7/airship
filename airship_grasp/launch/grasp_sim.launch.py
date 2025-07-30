@@ -27,7 +27,8 @@ def generate_launch_description():
         output='screen',
         parameters=[{'config': LaunchConfiguration('config')},
                     {'use_isaac_sim': LaunchConfiguration('use_isaac_sim')},
-                    {'use_sim_time': LaunchConfiguration('use_sim_time')}]
+                    {'use_sim_time': LaunchConfiguration('use_sim_time')}],
+        prefix='/home/airsbot2/miniconda3/envs/airship_grasp/bin/python3'
         )
 
     return LaunchDescription([

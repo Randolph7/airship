@@ -1,4 +1,6 @@
 import math
+import time
+import datetime
 
 from geometry_msgs.msg import PoseStamped, Quaternion
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
@@ -50,6 +52,8 @@ class NavigationService(Node):
         return length
     
     def navigate_to_pose_callback(self, request, response):
+        start_time = time.time()
+        start_time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.get_logger().info('Received navigation request to x: {}, y: {}, theta: {}'.format(request.x, request.y, request.theta))
 
         # Update current_pose to the latest value.
@@ -111,7 +115,18 @@ class NavigationService(Node):
             else:
                 self.get_logger().info('FAILED')
                 response.status = AirshipNav.Response.FAILED
-        return response
+        return_response = response
+        end_time = time.time()
+        delay_ms = (end_time - start_time) * 1000
+        end_time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log_msg = f"[navigate_to_pose_callback] start: {start_time_str}, end: {end_time_str}, latency: {delay_ms:.2f} ms"
+        self.get_logger().info(log_msg)
+        try:
+            with open("/tmp/nav_callback_delay.log", "a") as f:
+                f.write(f"{log_msg}\n")
+        except Exception as e:
+            self.get_logger().warn(f"Failed to write callback delay: {e}")
+        return return_response
     
     def set_posestamped(self):
         pose = PoseStamped()

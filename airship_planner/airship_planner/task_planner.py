@@ -7,6 +7,7 @@ import os
 import re
 import openai
 from openai import OpenAI
+from .token_speed_logger import log_token_speed
 
 class Task_Planner(ABC):
     def __init__(self):
@@ -19,20 +20,15 @@ class Task_Planner(ABC):
 
     def get_tasks(self, inst):
         prompt = self._build_prompt(inst)
-        # print(prompt)
-        self._msg = self.llm_processor(prompt)
+        self._msg = self.llm_processor(prompt, log_tag="normal")
         self._re_msg = self._msg
-        # print(self._msg)
         actions = self.llm_response_to_actions(self._msg)
         return actions
 
     def replan_get_tasks(self, error_id, history_info):
         prompt = self._build_replan_prompt(error_id, history_info)
-        # print(prompt)
-        msg = self.llm_processor(prompt)
-        # print(msg)
+        msg = self.llm_processor(prompt, log_tag="replan")
         self._re_msg[error_id] = msg[0]
-        # print(self._re_msg)
         actions = self.llm_response_to_actions(self._re_msg)
         return actions
 
@@ -118,7 +114,7 @@ The robot has a mobile base and an arm. The environment is represented by a sema
 {
     "coordinate table": [x, y, angle]
 }
-where "coordinate table" means different types of tables, "x" and "y" are positional coordinates, and "angle" represents the table’s orientation. 
+where "coordinate table" means different types of tables, "x" and "y" are positional coordinates, and "angle" represents the table's orientation. 
 
 Here is a detailed Semantic Map:
 """
@@ -159,7 +155,7 @@ The environment is represented by a semantic map in JSON format:
     "coordinate table": [x, y, angle]
 }
 
-where "coordinate table" means different types of tables, "x" and "y" are positional coordinates, and "angle" represents the table’s orientation. 
+where "coordinate table" means different types of tables, "x" and "y" are positional coordinates, and "angle" represents the table's orientation. 
 
 Here is a detailed Semantic Map:
 """
@@ -191,10 +187,12 @@ class GPT4_Task_Planner(LLM_Task_Planner):
         self._api_key = api_key
         self._api_url = api_url
 
-    def llm_processor(self, prompt):
+    def llm_processor(self, prompt, log_tag=""):
         client = OpenAI(api_key=self._api_key, base_url=self._api_url)
         while True:
             try:
+                import time
+                start_time = time.time()
                 completion = client.chat.completions.create(
                     model="gpt-4o",
                     messages=[
@@ -205,9 +203,16 @@ class GPT4_Task_Planner(LLM_Task_Planner):
                         }
                     ]
                 )
+                end_time = time.time()
                 response_json = completion.choices[0].message.content
                 data = re.sub(r'```(json)?', '', response_json).strip()
                 data = self._validate_json(data)
+                usage = getattr(completion, "usage", None)
+                total_tokens = usage.total_tokens if usage and hasattr(usage, "total_tokens") else None
+                elapsed = end_time - start_time
+                if total_tokens:
+                    tokens_per_sec = total_tokens / elapsed if elapsed > 0 else 0
+                    log_token_speed(self.model_name, total_tokens, elapsed, tokens_per_sec, log_tag=log_tag)
                 if data is not None:
                     return data
                 else:

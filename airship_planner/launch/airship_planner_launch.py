@@ -20,7 +20,8 @@ def generate_launch_description():
             package='airship_planner',
             executable='llm_planner',
             name='airship_planner',
-            parameters=llm_parameters)
+            parameters=llm_parameters,
+            output='screen')
 
     ld = LaunchDescription()
     ld.add_action(start_llm_planner_cmd)

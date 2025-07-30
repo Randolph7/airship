@@ -1,4 +1,6 @@
 import yaml
+import datetime
+import time
 
 from cv_bridge import CvBridge
 from groundingdino.util.inference import Model
@@ -50,6 +52,8 @@ class SegmentationServiceServer(Node):
         self.get_logger().info("airship_perception_server_node initialization process done.")
 
     def segmentation_grasp_callback(self, request, response):
+        start_time = time.time()
+        start_time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         # RGB image
         rgb_image = request.image
         rgb_image = self.cv_bridge.imgmsg_to_cv2(rgb_image, desired_encoding='bgr8')
@@ -58,6 +62,16 @@ class SegmentationServiceServer(Node):
         masks, labels = grounded_sam(self.grounding_dino_model, self.sam_predictor, rgb_image, object_list, box_threshold=0.5, text_threshold=0.4, nms_threshold=0.8, action='grasp')
         # response
         response.mask = self.cv_bridge.cv2_to_imgmsg(masks[0], encoding = "mono8")
+        end_time = time.time()
+        delay_ms = (end_time - start_time) * 1000
+        end_time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log_msg = f"[segmentation_grasp_callback] start: {start_time_str}, end: {end_time_str}, latency: {delay_ms:.2f} ms"
+        self.get_logger().info(log_msg)
+        try:
+            with open("/tmp/seg_callback_delay.log", "a") as f:
+                f.write(f"{log_msg}\n")
+        except Exception as e:
+            self.get_logger().warn(f"Failed to write callback delay: {e}")
         return response
 
     def segmentation_mapping_callback(self, request, response):

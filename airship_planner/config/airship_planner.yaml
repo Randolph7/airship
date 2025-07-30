@@ -1,6 +1,5 @@
 semantic_map_file: "nav_goal.yaml"
 llm_server_url: "https://74a5-116-6-48-9.ngrok-free.app/api/chat"
-openai_api_key: "xxxx"
-openai_api_url: "https://xxx.com"
-
-
+openai_api_key: "sk-lrbUowaWmuxddhsiE71b40Bb7998433796108b8a1517Cc59"
+openai_api_url: "https://pro.aiskt.com/v1"
+# llm_server_url: "http://127.0.0.1:8080/v1/chat/completions"

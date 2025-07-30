@@ -110,12 +110,18 @@ class UtilityIk():
         # Transformations
         trans_cam2real_gripper = self.pose_to_transformation_matrix(self.cam2real_gripper_xyzrpy)
         trans_est2virtual_gripper = self.pose_to_transformation_matrix(self.est2virtual_gripper_xyzrpy)
+        trans_est2virtual_gripper_inv = np.linalg.inv(trans_est2virtual_gripper)
         distances = []
+        Ry = np.array([[ 0., 0., 1., 0.],
+               [ 0., 1., 0., 0.],
+               [-1., 0., 0., 0.],
+               [ 0., 0., 0., 1.]])
         # Compute distance from the mask center for each candidate grasp pose
         for i in range(len(grasp_pose.rotation_matrices)):
             trans_virtual2cam = np.eye(4)
             trans_virtual2cam[:3, :3] = grasp_pose.rotation_matrices[i]
             trans_virtual2cam[:3, 3] = grasp_pose.translations[i]
+            # trans_virtual2cam =Ry @ trans_virtual2cam
             grasp_coords = self.matrix_to_euler_and_translation(trans_virtual2cam)
             distance = np.sqrt(np.sum((grasp_coords[:3] - center_mask_point) ** 2))
             distances.append(distance)
@@ -130,7 +136,14 @@ class UtilityIk():
             trans_virtual2cam = np.eye(4)
             trans_virtual2cam[:3, :3] = center_mask_grasp.rotation_matrices[0]
             trans_virtual2cam[:3, 3] = center_mask_grasp.translations[0]
-            trans_est2base = trans_real2base @ trans_cam2real_gripper @ trans_virtual2cam @ trans_est2virtual_gripper
+            tmp = np.array([[ 0., -1., 0., 0.],
+               [ 1., 0., 0., 0.],
+               [0., 0., 1., 0.],
+               [ 0., 0., 0., 1.]])
+            # trans_est2base = trans_real2base @ trans_cam2real_gripper @ Ry @ trans_virtual2cam #@ trans_est2virtual_gripper
+            # trans_est2base = trans_real2base @tmp @ trans_virtual2cam
+            trans_est2base = trans_real2base @ trans_virtual2cam
+            # trans_est2base = trans_real2base @ trans_cam2real_gripper @ trans_virtual2cam @ trans_est2virtual_gripper_inv
             # Get grasp coordinates and check if the angles are within the desired range
             grasp_coords = self.matrix_to_euler_and_translation(trans_est2base)
             center_mask_euler_angles = grasp_coords[3:]
@@ -142,6 +155,9 @@ class UtilityIk():
                 min_distance_index = np.argmin(np.array(distances))
                 attempt += 1
         # Convert coordinates from meters to millimeters
+        if grasp_coords[0] > 0.55:
+            grasp_coords[0] = 0.55
+            logging.info(grasp_coords) 
         grasp_coords[:3] = [x * 1000.0 for x in grasp_coords[:3]]
         if not found_valid_grasp:
             logging.info('Transform extrapolation error: No valid grasp found within constraints.')
@@ -195,13 +211,21 @@ class UtilityIk():
         ]
 
         # Set the raised joint positions
+        # joint_state_positions = [
+        #     0.0,    # joint_link1_to_base
+        #     -1.57,  # joint_link2_to_link1
+        #     0.35,   # joint_link3_to_link2
+        #     -1.04,  # joint_link4_to_link3
+        #     -1.57,  # joint_link5_to_link4
+        #     2.18    # joint_link6_to_link5
+        # ]
         joint_state_positions = [
             0.0,    # joint_link1_to_base
-            -1.57,  # joint_link2_to_link1
-            0.35,   # joint_link3_to_link2
-            -1.04,  # joint_link4_to_link3
+            -1.0,   # joint_link2_to_link1
+            0.2,    # joint_link3_to_link2
+            -1.7,   # joint_link4_to_link3
             -1.57,  # joint_link5_to_link4
-            2.18    # joint_link6_to_link5
+            1.9     # joint_link6_to_link5
         ]
 
         # Combine joint names and positions into target joint state dictionary

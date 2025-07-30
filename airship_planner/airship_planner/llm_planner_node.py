@@ -1,6 +1,7 @@
 import os
 import time
 import threading
+import datetime
 
 from rclpy.node import Node
 from rclpy.executors import MultiThreadedExecutor
@@ -25,17 +26,26 @@ class LLMPlanner(Node):
         with open(self.config_path, 'r') as file:
             self.config = yaml.safe_load(file)
 
-        self.declare_parameter('semantic_map_dir', os.path.join(curr_file_dir, '../map/'))
+        # self.declare_parameter('semantic_map_dir', os.path.join(curr_file_dir, '../map/'))
+        self.declare_parameter('semantic_map_dir', os.path.join(curr_file_dir, '/home/airsbot2/airship/src/airship/airship_object/map'))
         #self.declare_parameter('semantic_map_file', 'semantic_map.yaml')
         #self.declare_parameter('llm_server_url', 'localhost')
 
         semantic_map = self.get_parameter('semantic_map_dir').value + self.config.get('semantic_map_file')
+        
+        # 🔽 新增打印路径和内容：
+        self.get_logger().info(f'[🗺️ Semantic Map 路径]: {semantic_map}')
+        try:
+            with open(semantic_map, 'r') as f:
+                content = f.read()
+                self.get_logger().info('[📜 Semantic Map 内容]:\n' + content)
+        except Exception as e:
+            self.get_logger().error(f'[❌ 读取 Semantic Map 失败]: {e}')
 
-        """
         # LLAMA3.1
-        server_url = self.config.get('llm_server_url')
-        self._task_planner = LLAMA_Task_Planner(server_url, semantic_map)
-        """
+        # server_url = self.config.get('llm_server_url')
+        # self._task_planner = LLAMA_Task_Planner(server_url, semantic_map)
+
         # GPT4
         server_api_key = self.config.get('openai_api_key')
         server_api_base_url = self.config.get('openai_api_url')
@@ -147,6 +157,8 @@ class LLMPlanner(Node):
         return AirshipInstruct.Response.SUCCESS, -1
 
     def instruct_callback(self, request, response):
+        # start_time = time.time()
+        # start_time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         if self._busy:
             self.get_logger().warning('The robot is working.')
             response.ret = AirshipInstruct.Response.ROBOT_BUSY
@@ -165,6 +177,9 @@ class LLMPlanner(Node):
             'Parsing users\' instruction: {}'.format(instruct_msg))
         task_list = self._task_planner.get_tasks(instruct_msg)
         self.get_logger().info("LLM planned task list: {}".format(task_list))
+
+        start_time = time.time()
+        start_time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         response.ret, error_id = self._task_scheduler(task_list)
         current_task = 0
@@ -191,6 +206,16 @@ class LLMPlanner(Node):
                 response.ret, error_id = self._task_scheduler(task_list)
 
         self._busy = False
+        end_time = time.time()
+        delay_ms = (end_time - start_time) * 1000
+        end_time_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log_msg = f"[instruct_callback] start: {start_time_str}, end: {end_time_str}, latency: {delay_ms:.2f} ms"
+        self.get_logger().info(log_msg)
+        try:
+            with open("/tmp/llm_callback_delay.log", "a") as f:
+                f.write(f"{log_msg}\n")
+        except Exception as e:
+            self.get_logger().warn(f"Failed to write callback delay: {e}")
         return response
 
 def main(args=None):
