@@ -1,0 +1,133 @@
+#           time             counts unit events
+     1.000521806          8,732,850      cycles:u                  #    1.248 GHz                    
+     1.000521806          3,404,579      instructions:u            #    0.39  insn per cycle         
+     1.000521806          1,991,119      cache-references:u        #  284.563 M/sec                  
+     1.000521806             75,251      cache-misses:u            #    3.779 % of all cache refs    
+     1.000521806    <not supported>      branches:u                                                  
+     1.000521806             74,764      branch-misses:u                                             
+     1.000521806               6.99 msec cpu-clock:u               #    0.007 CPUs utilized          
+     1.000521806               7.01 msec task-clock:u              #    0.007 CPUs utilized          
+     1.000521806                  3      page-faults:u             #  428.749 /sec                   
+     1.000521806                  0      context-switches:u        #    0.000 /sec                   
+     1.000521806                  0      cpu-migrations:u          #    0.000 /sec                   
+     2.002612695          1,458,581      cycles:u                  #    1.511 GHz                    
+     2.002612695            517,230      instructions:u            #    0.35  insn per cycle         
+     2.002612695            302,018      cache-references:u        #  312.788 M/sec                  
+     2.002612695             10,890      cache-misses:u            #    3.606 % of all cache refs    
+     2.002612695    <not supported>      branches:u                                                  
+     2.002612695             11,694      branch-misses:u                                             
+     2.002612695               0.96 msec cpu-clock:u               #    0.001 CPUs utilized          
+     2.002612695               0.97 msec task-clock:u              #    0.001 CPUs utilized          
+     2.002612695                  0      page-faults:u             #    0.000 /sec                   
+     2.002612695                  0      context-switches:u        #    0.000 /sec                   
+     2.002612695                  0      cpu-migrations:u          #    0.000 /sec                   
+     3.003859320      <not counted>      cycles:u                                                    
+     3.003859320      <not counted>      instructions:u                                              
+     3.003859320      <not counted>      cache-references:u                                          
+     3.003859320      <not counted>      cache-misses:u                                              
+     3.003859320    <not supported>      branches:u                                                  
+     3.003859320      <not counted>      branch-misses:u                                             
+     3.003859320      <not counted> msec cpu-clock:u                                                 
+     3.003859320      <not counted> msec task-clock:u                                                
+     3.003859320      <not counted>      page-faults:u                                               
+     3.003859320      <not counted>      context-switches:u                                          
+     3.003859320      <not counted>      cpu-migrations:u                                            
+     4.005562315      <not counted>      cycles:u                                                    
+     4.005562315      <not counted>      instructions:u                                              
+     4.005562315      <not counted>      cache-references:u                                          
+     4.005562315      <not counted>      cache-misses:u                                              
+     4.005562315    <not supported>      branches:u                                                  
+     4.005562315      <not counted>      branch-misses:u                                             
+     4.005562315      <not counted> msec cpu-clock:u                                                 
+     4.005562315      <not counted> msec task-clock:u                                                
+     4.005562315      <not counted>      page-faults:u                                               
+     4.005562315      <not counted>      context-switches:u                                          
+     4.005562315      <not counted>      cpu-migrations:u                                            
+     5.007198904      <not counted>      cycles:u                                                    
+     5.007198904      <not counted>      instructions:u                                              
+     5.007198904      <not counted>      cache-references:u                                          
+     5.007198904      <not counted>      cache-misses:u                                              
+     5.007198904    <not supported>      branches:u                                                  
+     5.007198904      <not counted>      branch-misses:u                                             
+     5.007198904      <not counted> msec cpu-clock:u                                                 
+     5.007198904      <not counted> msec task-clock:u                                                
+     5.007198904      <not counted>      page-faults:u                                               
+     5.007198904      <not counted>      context-switches:u                                          
+     5.007198904      <not counted>      cpu-migrations:u                                            
+     6.008865946      <not counted>      cycles:u                                                    
+     6.008865946      <not counted>      instructions:u                                              
+     6.008865946      <not counted>      cache-references:u                                          
+     6.008865946      <not counted>      cache-misses:u                                              
+     6.008865946    <not supported>      branches:u                                                  
+     6.008865946      <not counted>      branch-misses:u                                             
+     6.008865946      <not counted> msec cpu-clock:u                                                 
+     6.008865946      <not counted> msec task-clock:u                                                
+     6.008865946      <not counted>      page-faults:u                                               
+     6.008865946      <not counted>      context-switches:u                                          
+     6.008865946      <not counted>      cpu-migrations:u                                            
+     7.010015257      <not counted>      cycles:u                                                    
+     7.010015257      <not counted>      instructions:u                                              
+     7.010015257      <not counted>      cache-references:u                                          
+     7.010015257      <not counted>      cache-misses:u                                              
+     7.010015257    <not supported>      branches:u                                                  
+     7.010015257      <not counted>      branch-misses:u                                             
+     7.010015257      <not counted> msec cpu-clock:u                                                 
+     7.010015257      <not counted> msec task-clock:u                                                
+     7.010015257      <not counted>      page-faults:u                                               
+     7.010015257      <not counted>      context-switches:u                                          
+     7.010015257      <not counted>      cpu-migrations:u                                            
+     8.011862776      <not counted>      cycles:u                                                    
+     8.011862776      <not counted>      instructions:u                                              
+     8.011862776      <not counted>      cache-references:u                                          
+     8.011862776      <not counted>      cache-misses:u                                              
+     8.011862776    <not supported>      branches:u                                                  
+     8.011862776      <not counted>      branch-misses:u                                             
+     8.011862776      <not counted> msec cpu-clock:u                                                 
+     8.011862776      <not counted> msec task-clock:u                                                
+     8.011862776      <not counted>      page-faults:u                                               
+     8.011862776      <not counted>      context-switches:u                                          
+     8.011862776      <not counted>      cpu-migrations:u                                            
+     9.013794630      <not counted>      cycles:u                                                    
+     9.013794630      <not counted>      instructions:u                                              
+     9.013794630      <not counted>      cache-references:u                                          
+     9.013794630      <not counted>      cache-misses:u                                              
+     9.013794630    <not supported>      branches:u                                                  
+     9.013794630      <not counted>      branch-misses:u                                             
+     9.013794630      <not counted> msec cpu-clock:u                                                 
+     9.013794630      <not counted> msec task-clock:u                                                
+     9.013794630      <not counted>      page-faults:u                                               
+     9.013794630      <not counted>      context-switches:u                                          
+     9.013794630      <not counted>      cpu-migrations:u                                            
+    10.015254671      <not counted>      cycles:u                                                    
+    10.015254671      <not counted>      instructions:u                                              
+    10.015254671      <not counted>      cache-references:u                                          
+    10.015254671      <not counted>      cache-misses:u                                              
+    10.015254671    <not supported>      branches:u                                                  
+    10.015254671      <not counted>      branch-misses:u                                             
+    10.015254671      <not counted> msec cpu-clock:u                                                 
+    10.015254671      <not counted> msec task-clock:u                                                
+    10.015254671      <not counted>      page-faults:u                                               
+    10.015254671      <not counted>      context-switches:u                                          
+    10.015254671      <not counted>      cpu-migrations:u                                            
+    11.016946811          1,416,962      cycles:u                  #    1.526 GHz                    
+    11.016946811            521,683      instructions:u            #    0.37  insn per cycle         
+    11.016946811            304,229      cache-references:u        #  327.607 M/sec                  
+    11.016946811             11,481      cache-misses:u            #    3.774 % of all cache refs    
+    11.016946811    <not supported>      branches:u                                                  
+    11.016946811             11,635      branch-misses:u                                             
+    11.016946811               0.93 msec cpu-clock:u               #    0.001 CPUs utilized          
+    11.016946811               0.93 msec task-clock:u              #    0.001 CPUs utilized          
+    11.016946811                  0      page-faults:u             #    0.000 /sec                   
+    11.016946811                  0      context-switches:u        #    0.000 /sec                   
+    11.016946811                  0      cpu-migrations:u          #    0.000 /sec                   
+    12.018664988      <not counted>      cycles:u                                                    
+    12.018664988      <not counted>      instructions:u                                              
+    12.018664988      <not counted>      cache-references:u                                          
+    12.018664988      <not counted>      cache-misses:u                                              
+    12.018664988    <not supported>      branches:u                                                  
+    12.018664988      <not counted>      branch-misses:u                                             
+    12.018664988      <not counted> msec cpu-clock:u                                                 
+    12.018664988      <not counted> msec task-clock:u                                                
+    12.018664988      <not counted>      page-faults:u                                               
+    12.018664988      <not counted>      context-switches:u                                          
+    12.018664988      <not counted>      cpu-migrations:u                                            
