@@ -1,1 +1,0 @@
-[normal]Model: GPT-4, tokens: 732, time: 2.49second, token/s: 293.49

@@ -167,11 +167,11 @@ echo "统计以下进程的性能信息：$PIDS"
 mkdir -p log
 
 # 后台运行 perf 统计，输出到 log/perf_stat.log
-"$PERF_BIN" stat -I 1000 -e cycles,instructions,cache-references,cache-misses,branches,branch-misses,cpu-clock,task-clock,page-faults,context-switches,cpu-migrations -p $PIDS > log/perf_stat.log 2>&1 &
-PERF_PID=$!
+# "$PERF_BIN" stat -I 1000 -e cycles,instructions,cache-references,cache-misses,branches,branch-misses,cpu-clock,task-clock,page-faults,context-switches,cpu-migrations -p $PIDS > log/perf_stat.log 2>&1 &
+# PERF_PID=$!
 
 # 退出时自动结束 perf
-trap "kill $TEGRA_PID 2>/dev/null; kill $PERF_PID 2>/dev/null; python3 analyze_tegrastats.py" EXIT
+# trap "kill $TEGRA_PID 2>/dev/null; kill $PERF_PID 2>/dev/null; python3 analyze_tegrastats.py" EXIT
 
 tmux select-pane -t benchmark:0.4
 tmux attach-session -t benchmark

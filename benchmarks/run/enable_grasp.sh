@@ -1,19 +1,21 @@
 #!/bin/bash
-PERF_BIN=~/perf
-source ~/miniconda3/etc/profile.d/conda.sh
-source ~/airship/install/local_setup.bash
+source ./env.sh
+
 conda activate airship_grasp
 
 LOG_DIR=log
 mkdir -p $LOG_DIR
 
-# 启动 ros2 launch 并获取其PID
+# Start ros2 launch and get its PID
 ros2 launch airship_grasp grasp_sim.launch.py use_isaac_sim:=true &
 TARGET_PID=$!
-sleep 5  # 等待进程和线程全部启动
+sleep 5  # Wait for all processes and threads to start
 
-echo "开始 perf record 跟踪进程 $TARGET_PID 的所有线程..."
-sudo $PERF_BIN record -g -p $TARGET_PID
+N=5  # Sampling interval in seconds
+echo "Starting perf stat tracking for process $TARGET_PID every ${N} seconds ..."
+while kill -0 $TARGET_PID 2>/dev/null; do
+    sudo $PERF_BIN stat -e cycles,instructions,cache-references,cache-misses,branches,branch-misses,cpu-clock,task-clock,page-faults,context-switches,cpu-migrations -p $TARGET_PID -o $LOG_DIR/perf_stat_$(date +%Y%m%d_%H%M%S).log sleep $N
+    sleep 0.1  # Prevent time overlap
+done
 
-echo "采样结束。可用如下命令分析："
-echo "  sudo $PERF_BIN report"
+echo "Sampling finished. Logs are saved in $LOG_DIR."

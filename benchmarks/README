@@ -1,0 +1,83 @@
+# benchmark README
+
+## Overview
+
+This project is designed for multi-module performance benchmarking and data collection in robotic systems. It supports automated startup, performance monitoring, data analysis, and visualization. Main features include:
+
+- **One-click Multi-module Startup**: Automatically launches navigation, perception, grasp, and planning ROS2 nodes, managed via tmux multi-pane sessions.
+- **Performance Data Collection**: Integrates tegrastats, perf, jtop, and other tools to automatically collect CPU, GPU, and memory usage data.
+- **Performance Analysis & Visualization**:
+  - Automatically analyzes tegrastats and jtop logs to generate statistical summaries.
+  - Provides Python scripts for visualizing key performance metrics such as callback latency.
+- **Interactive Command Sending**: Integrated into `run.sh`. After startup, you can input instructions directly in the tmux pane to test system responses.
+
+## Directory Structure
+
+- `run/`: Main directory containing all startup, collection, analysis, and visualization scripts.
+  - `run.sh`: Main entry script for one-click startup, environment setup, performance collection, node launching, and log analysis.
+  - `enable_nav.sh`, `enable_perception.sh`, `enable_grasp.sh`, `enable_planner.sh`: Launch navigation, perception, grasp, and planning modules respectively, and collect their performance data.
+  - `send_inst.sh`: Script for sending instructions to the planner service (now integrated into `run.sh`, usually not needed separately).
+  - `analyze_tegrastats.py`: Analyzes tegrastats logs and outputs CPU/GPU/memory statistics.
+  - `plot.py`: Visualizes callback latency for each node.
+  - `log/`: Stores all collected logs and analysis results.
+
+## Usage
+
+### 1. Environment Preparation
+
+- Ensure ROS2, tmux, perf, tegrastats, jtop, Python3, and related dependencies (such as pandas, matplotlib, mplcursors) are installed.
+- Each module should have its corresponding conda environment set up (e.g., `airship_perception`, `airship_grasp`, `airship_planner`).
+- The `~/airship` path should contain a built ROS2 workspace with all required packages.
+- **Before running any scripts, source the unified environment variable configuration:**
+
+```bash
+source run/env.sh
+```
+
+### 2. One-click Startup & Performance Collection
+
+In the `run/` directory, execute:
+
+```bash
+bash run.sh
+```
+
+- The script will automatically start a tmux session and run each module in a separate pane.
+- tegrastats will be started automatically to collect hardware performance data; logs will be analyzed and summarized upon script exit.
+- Each module process will be periodically sampled using perf, with logs saved in the `log/` directory.
+- The interactive instruction sending feature is integrated; after startup, you can input instructions directly in the send_inst pane of tmux.
+
+### 3. tmux Tips
+
+- **Pane Switching**:
+  - Press `Ctrl+b`, then a number key `0`~`4` to switch to different panes (e.g., 0 for navigation, 1 for perception, 2 for grasp, 3 for planning, 4 for instruction input).
+  - Press `Ctrl+b`, then `o` to cycle through panes.
+- **Switch to jtop Session**:
+  - A separate tmux session named `jtop` is automatically created for monitoring Jetson resource usage.
+  - Press `Ctrl+b`, then `s` to list all tmux sessions, use arrow keys to select `jtop` and press Enter to switch.
+  - To return to the main benchmark session, repeat `Ctrl+b`, then `s` and select `benchmark`.
+- **Split Panes**:
+  - Press `Ctrl+b`, then `"` or `%` to split panes horizontally or vertically.
+- **Close a Pane**:
+  - Type `exit` or press `Ctrl+d` inside a pane.
+
+### 4. Performance Data Analysis & Visualization
+
+- `analyze_tegrastats.py`: Analyzes tegrastats logs and generates `log/tegrastats_summary.txt`.
+- `plot.py`: Visualizes callback latency logs from `/tmp/` for each node, with interactive hover for details.
+
+Example usage:
+
+```bash
+python3 plot.py
+```
+
+## Notes
+
+- Root privileges are required for perf-based data collection.
+- All conda environments for each module should be created and activated in advance.
+- All logs and analysis results are saved in the `run/log/` directory for later review and comparison.
+
+---
+
+For further customization or additional details, please let us know!

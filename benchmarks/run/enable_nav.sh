@@ -1,6 +1,5 @@
 #!/bin/bash
-PERF_BIN=~/perf
-source ~/airship/install/local_setup.bash
+source ./env.sh
 
 LOG_DIR=log
 mkdir -p $LOG_DIR
@@ -10,25 +9,36 @@ ros2 launch airship_localization airship_localization_gt_sim.launch.py &
 LOC_PID=$!
 sleep 5
 
-# 跟踪 localization 进程
-echo "开始 perf record 跟踪进程 $LOC_PID"
-sudo $PERF_BIN record -g -p $LOC_PID -o $LOG_DIR/perf_localization.data &
-PERF_LOC_PID=$!
+# 检查 localization 进程是否还在
+if ! kill -0 $LOC_PID 2>/dev/null; then
+  echo "localization 启动失败或已退出，跳过采样。"
+else
+  N=5  # 采样间隔秒数
+  echo "开始每${N}秒 perf stat 跟踪进程 $LOC_PID ..."
+  (
+      while kill -0 $LOC_PID 2>/dev/null; do
+          sudo $PERF_BIN stat -e cycles,instructions,cache-references,cache-misses,branches,branch-misses,cpu-clock,task-clock,page-faults,context-switches,cpu-migrations -p $LOC_PID -o $LOG_DIR/perf_stat_localization_$(date +%Y%m%d_%H%M%S).log sleep $N
+          sleep 0.1
+      done
+  ) &
+fi
 
 # 启动 navigation
 ros2 launch airship_navigation airship_navigation_sim.launch.py &
 NAV_PID=$!
 sleep 5
 
-# 跟踪 navigation 进程
-echo "开始 perf record 跟踪进程 $NAV_PID"
-sudo $PERF_BIN record -g -p $NAV_PID -o $LOG_DIR/perf_navigation.data &
-PERF_NAV_PID=$!
+# 检查 navigation 进程是否还在
+if ! kill -0 $NAV_PID 2>/dev/null; then
+  echo "navigation 启动失败或已退出，跳过采样。"
+else
+  echo "开始每${N}秒 perf stat 跟踪进程 $NAV_PID ..."
+  (
+      while kill -0 $NAV_PID 2>/dev/null; do
+          sudo $PERF_BIN stat -e cycles,instructions,cache-references,cache-misses,branches,branch-misses,cpu-clock,task-clock,page-faults,context-switches,cpu-migrations -p $NAV_PID -o $LOG_DIR/perf_stat_navigation_$(date +%Y%m%d_%H%M%S).log sleep $N
+          sleep 0.1
+      done
+  ) &
+fi
 
-# 等待 perf 跟踪完成（可选）
-wait $PERF_LOC_PID
-wait $PERF_NAV_PID
-
-echo "采样结束。你可以分别使用如下命令查看报告："
-echo "  sudo $PERF_BIN report -i $LOG_DIR/perf_localization.data"
-echo "  sudo $PERF_BIN report -i $LOG_DIR/perf_navigation.data"
+echo "采样结束。日志保存在 $LOG_DIR 下。"
