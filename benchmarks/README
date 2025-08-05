@@ -79,5 +79,3 @@ python3 plot.py
 - All logs and analysis results are saved in the `run/log/` directory for later review and comparison.
 
 ---
-
-For further customization or additional details, please let us know!
