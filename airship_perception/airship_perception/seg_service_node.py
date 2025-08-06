@@ -1,3 +1,4 @@
+#!/home/airsbot2/miniconda3/envs/airship_perception/bin/python
 import yaml
 import datetime
 import time

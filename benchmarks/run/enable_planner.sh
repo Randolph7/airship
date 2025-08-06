@@ -2,7 +2,11 @@
 source ./env.sh
 
 # Activate conda environment
+eval "$(conda shell.bash hook)"
 conda activate airship_planner
+
+# Add conda site-packages to PYTHONPATH
+export PYTHONPATH=/home/airsbot2/miniconda3/envs/airship_planner/lib/python3.10/site-packages:$PYTHONPATH
 
 LOG_DIR=log
 mkdir -p $LOG_DIR

@@ -1,15 +1,30 @@
 # benchmark README
 
+> **System Demo Video**
+>
+> ![Airship System Demo](figs/airship.mp4)
+>
+> *The video above demonstrates the overall features and workflow of this benchmarking system, including multi-module startup, performance monitoring, and data analysis.*
+
 ## Overview
 
 This project is designed for multi-module performance benchmarking and data collection in robotic systems. It supports automated startup, performance monitoring, data analysis, and visualization. Main features include:
 
-- **One-click Multi-module Startup**: Automatically launches navigation, perception, grasp, and planning ROS2 nodes, managed via tmux multi-pane sessions.
-- **Performance Data Collection**: Integrates tegrastats, perf, jtop, and other tools to automatically collect CPU, GPU, and memory usage data.
+- **One-click Multi-module Startup**: Automatically launches navigation, perception, grasp, and planning ROS2 nodes, managed via tmux multi-pane sessions。
+
+  ![Multi-module Launch Window](figs/Lauch_window.jpg)
+  
+  *As shown above, the system uses tmux multi-pane windows to launch and monitor each module independently, allowing users to observe the status of all modules in real time.*
+- **Performance Data Collection**: Integrates tegrastats, perf, jtop, and other tools to automatically collect CPU, GPU, and memory usage data。
+
+  ![Perf Performance Statistics](figs/Perf_stat.jpg)
+  
+  *The perf tool provides detailed CPU performance sampling and statistics for each module, helping to identify performance bottlenecks.*
 - **Performance Analysis & Visualization**:
   - Automatically analyzes tegrastats and jtop logs to generate statistical summaries.
   - Provides Python scripts for visualizing key performance metrics such as callback latency.
 - **Interactive Command Sending**: Integrated into `run.sh`. After startup, you can input instructions directly in the tmux pane to test system responses.
+- **Automatic Token Speed Testing**: Every time the planner is triggered, it automatically performs token speed testing, measuring model performance including total tokens, processing time, and tokens per second.
 
 ## Directory Structure
 
@@ -53,18 +68,51 @@ bash run.sh
   - Press `Ctrl+b`, then a number key `0`~`4` to switch to different panes (e.g., 0 for navigation, 1 for perception, 2 for grasp, 3 for planning, 4 for instruction input).
   - Press `Ctrl+b`, then `o` to cycle through panes.
 - **Switch to jtop Session**:
-  - A separate tmux session named `jtop` is automatically created for monitoring Jetson resource usage.
-  - Press `Ctrl+b`, then `s` to list all tmux sessions, use arrow keys to select `jtop` and press Enter to switch.
-  - To return to the main benchmark session, repeat `Ctrl+b`, then `s` and select `benchmark`.
+  - A separate tmux session named `jtop` is automatically created for monitoring Jetson resource usage。
+
+    ![jtop Resource Monitoring Overview](figs/Jtop_Realtime_Overview.jpg)
+    
+    *jtop offers a comprehensive resource monitoring interface for Jetson platforms, including CPU, GPU, memory, and more.*
+
+  - Press `Ctrl+b`, then `s` to list all tmux sessions, use arrow keys to select `jtop` and press Enter to switch。
+
+    ![jtop Realtime Monitoring](figs/Jtop_switch.png)
+    
+    *The realtime monitoring interface of jtop dynamically displays resource usage changes, making it easy to spot abnormal loads.*
 - **Split Panes**:
   - Press `Ctrl+b`, then `"` or `%` to split panes horizontally or vertically.
 - **Close a Pane**:
   - Type `exit` or press `Ctrl+d` inside a pane.
 
-### 4. Performance Data Analysis & Visualization
+### 4. Token Speed Testing
 
-- `analyze_tegrastats.py`: Analyzes tegrastats logs and generates `log/tegrastats_summary.txt`.
+The system automatically performs token speed testing whenever the planner is triggered. This feature measures:
+
+- **Model Type**: The AI model being used (e.g., GPT-4)
+- **Total Tokens**: Number of tokens processed in the request
+- **Processing Time**: Time taken to complete the request
+- **Tokens per Second**: Performance metric showing processing speed
+
+**Example Output:**
+```
+The input instruction is "Go to the table."
+[normal] Model: GPT-4, total tokens: 739, time taken: 3.28 seconds, tokens per second: 225.10
+```
+
+This testing helps monitor and optimize the AI model's performance in real-time robotic planning scenarios.
+
+### 5. Performance Data Analysis & Visualization
+
+- `analyze_tegrastats.py`: Analyzes tegrastats logs and generates `log/tegrastats_summary.txt`。
+
+  ![jtop Data Summary](figs/Jtop_Wrapup.jpg)
+  
+  *jtop supports summary analysis of collected resource data, helping users quickly understand the overall system load.*
 - `plot.py`: Visualizes callback latency logs from `/tmp/` for each node, with interactive hover for details.
+
+  ![Pipeline Timeline Analysis](figs/Timeline.jpg)
+  
+  *The timeline feature can be combined with perf state interval sampling to correlate hardware conditions with specific pipeline task execution periods, providing insights into resource utilization during different phases of robotic operations.*
 
 Example usage:
 
