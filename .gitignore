@@ -41,3 +41,4 @@ airship_perception/lib/predict.py
 airship_perception/lib/requirements.txt
 airship_perception/lib/segment_anything/
 airship_planner/airship_planner/__pycache__/
+benchmark/run/log/*

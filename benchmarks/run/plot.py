@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from datetime import datetime
 import matplotlib.dates as mdates
+import os
 
 
 def parse_log(file, label):
@@ -33,11 +34,14 @@ plots = []
 for idx, (file, label) in enumerate(logs):
     try:
         starts, ends, delays, label = parse_log(file, label)
-        # 画点
+        # Plot points
         p = plt.scatter(starts, delays, marker=markers[idx % len(markers)], color=colors[idx % len(colors)], label=label, s=80, alpha=0.8)
-        # 画线段
+        # Plot lines and annotate start/end
         for s, e, d in zip(starts, ends, delays):
             plt.plot([s, e], [d, d], color=colors[idx % len(colors)], alpha=0.5, linewidth=2)
+            # Annotate start and end with HHMMSS
+            plt.text(s, d, s.strftime('%H%M%S'), color=colors[idx % len(colors)], fontsize=9, ha='right', va='bottom', fontweight='bold')
+            plt.text(e, d, e.strftime('%H%M%S'), color=colors[idx % len(colors)], fontsize=9, ha='left', va='bottom', fontweight='bold')
         plots.append((p, starts, ends, delays, label))
     except Exception as e:
         print(f"Skip {file}: {e}")
@@ -52,18 +56,7 @@ plt.grid(True, which="both", ls="--", linewidth=0.5)
 plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
 plt.gcf().autofmt_xdate()
 
-# Add interactive hover
-try:
-    import mplcursors
-    cursor = mplcursors.cursor([p[0] for p in plots], hover=True)
-    @cursor.connect("add")
-    def on_add(sel):
-        for p, starts, ends, delays, label in plots:
-            if sel.artist == p:
-                idx = sel.index
-                sel.annotation.set(text=f"{label}\nStart: {starts[idx]}\nEnd: {ends[idx]}\nLatency: {delays[idx]:.2f} ms")
-                break
-except ImportError:
-    print("mplcursors not installed, hover info disabled.")
-
-plt.show()
+# Save to log directory
+os.makedirs('log', exist_ok=True)
+plt.savefig('log/callback_timeline.png', dpi=300, bbox_inches='tight')
+print('Saved timeline plot to log/callback_timeline.png')

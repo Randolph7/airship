@@ -4,7 +4,7 @@
 >
 > ![Airship System Demo](figs/airship.mp4)
 >
-> *The video above demonstrates the overall features and workflow of this benchmarking system, including multi-module startup, performance monitoring, and data analysis.*
+> *The video above demonstrates the example for starting a workload.*
 
 ## Overview
 
@@ -13,14 +13,15 @@ This project is designed for multi-module performance benchmarking and data coll
 - **One-click Multi-module Startup**: Automatically launches navigation, perception, grasp, and planning ROS2 nodes, managed via tmux multi-pane sessions。
 
   ![Multi-module Launch Window](figs/Lauch_window.jpg)
-  
+
   *As shown above, the system uses tmux multi-pane windows to launch and monitor each module independently, allowing users to observe the status of all modules in real time.*
 - **Performance Data Collection**: Integrates tegrastats, perf, jtop, and other tools to automatically collect CPU, GPU, and memory usage data。
 
   ![Perf Performance Statistics](figs/Perf_stat.jpg)
-  
+
   *The perf tool provides detailed CPU performance sampling and statistics for each module, helping to identify performance bottlenecks.*
 - **Performance Analysis & Visualization**:
+
   - Automatically analyzes tegrastats and jtop logs to generate statistical summaries.
   - Provides Python scripts for visualizing key performance metrics such as callback latency.
 - **Interactive Command Sending**: Integrated into `run.sh`. After startup, you can input instructions directly in the tmux pane to test system responses.
@@ -71,13 +72,12 @@ bash run.sh
   - A separate tmux session named `jtop` is automatically created for monitoring Jetson resource usage。
 
     ![jtop Resource Monitoring Overview](figs/Jtop_Realtime_Overview.jpg)
-    
-    *jtop offers a comprehensive resource monitoring interface for Jetson platforms, including CPU, GPU, memory, and more.*
 
+    *jtop offers a comprehensive resource monitoring interface for Jetson platforms, including CPU, GPU, memory, and more.*
   - Press `Ctrl+b`, then `s` to list all tmux sessions, use arrow keys to select `jtop` and press Enter to switch。
 
     ![jtop Realtime Monitoring](figs/Jtop_switch.png)
-    
+
     *The realtime monitoring interface of jtop dynamically displays resource usage changes, making it easy to spot abnormal loads.*
 - **Split Panes**:
   - Press `Ctrl+b`, then `"` or `%` to split panes horizontally or vertically.
@@ -94,6 +94,7 @@ The system automatically performs token speed testing whenever the planner is tr
 - **Tokens per Second**: Performance metric showing processing speed
 
 **Example Output:**
+
 ```
 The input instruction is "Go to the table."
 [normal] Model: GPT-4, total tokens: 739, time taken: 3.28 seconds, tokens per second: 225.10
@@ -106,12 +107,12 @@ This testing helps monitor and optimize the AI model's performance in real-time 
 - `analyze_tegrastats.py`: Analyzes tegrastats logs and generates `log/tegrastats_summary.txt`。
 
   ![jtop Data Summary](figs/Jtop_Wrapup.jpg)
-  
+
   *jtop supports summary analysis of collected resource data, helping users quickly understand the overall system load.*
 - `plot.py`: Visualizes callback latency logs from `/tmp/` for each node, with interactive hover for details.
 
   ![Pipeline Timeline Analysis](figs/Timeline.jpg)
-  
+
   *The timeline feature can be combined with perf state interval sampling to correlate hardware conditions with specific pipeline task execution periods, providing insights into resource utilization during different phases of robotic operations.*
 
 Example usage:
@@ -127,3 +128,15 @@ python3 plot.py
 - All logs and analysis results are saved in the `run/log/` directory for later review and comparison.
 
 ---
+
+## Q & A
+
+### Q: Sometimes ROS launch can't find conda's Python path in conda environment, what should I do?
+
+**A:** When you encounter issues with ROS launch not finding the correct Python path in conda environments, you can set the PYTHONPATH manually:
+
+```bash
+export PYTHONPATH=$CONDA_PREFIX/lib/python3.10/site-packages:/home/airsbot2/airship/src/airship/airship_perception/lib/GroundingDINO:$PYTHONPATH
+```
+
+This ensures that ROS launch uses the correct Python interpreter and can find all the required packages in your conda environment.

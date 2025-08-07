@@ -1,20 +1,20 @@
 #!/bin/bash
 source ./env.sh
 
-LOG_DIR=log
+LOG_DIR=log/navigation
 mkdir -p $LOG_DIR
 
-# 启动 localization
+# Start localization
 ros2 launch airship_localization airship_localization_gt_sim.launch.py &
 LOC_PID=$!
 sleep 5
 
-# 检查 localization 进程是否还在
+# Check if localization process is still running
 if ! kill -0 $LOC_PID 2>/dev/null; then
-  echo "localization 启动失败或已退出，跳过采样。"
+  echo "localization startup failed or exited, skipping sampling."
 else
-  N=5  # 采样间隔秒数
-  echo "开始每${N}秒 perf stat 跟踪进程 $LOC_PID ..."
+  N=5  # Sampling interval in seconds
+  echo "Starting perf stat tracking for process $LOC_PID every ${N} seconds..."
   (
       while kill -0 $LOC_PID 2>/dev/null; do
           sudo $PERF_BIN stat -e cycles,instructions,cache-references,cache-misses,branches,branch-misses,cpu-clock,task-clock,page-faults,context-switches,cpu-migrations -p $LOC_PID -o $LOG_DIR/perf_stat_localization_$(date +%Y%m%d_%H%M%S).log sleep $N
@@ -23,16 +23,16 @@ else
   ) &
 fi
 
-# 启动 navigation
+# Start navigation
 ros2 launch airship_navigation airship_navigation_sim.launch.py &
 NAV_PID=$!
 sleep 5
 
-# 检查 navigation 进程是否还在
+# Check if navigation process is still running
 if ! kill -0 $NAV_PID 2>/dev/null; then
-  echo "navigation 启动失败或已退出，跳过采样。"
+  echo "navigation startup failed or exited, skipping sampling."
 else
-  echo "开始每${N}秒 perf stat 跟踪进程 $NAV_PID ..."
+  echo "Starting perf stat tracking for process $NAV_PID every ${N} seconds..."
   (
       while kill -0 $NAV_PID 2>/dev/null; do
           sudo $PERF_BIN stat -e cycles,instructions,cache-references,cache-misses,branches,branch-misses,cpu-clock,task-clock,page-faults,context-switches,cpu-migrations -p $NAV_PID -o $LOG_DIR/perf_stat_navigation_$(date +%Y%m%d_%H%M%S).log sleep $N
@@ -41,4 +41,4 @@ else
   ) &
 fi
 
-echo "采样结束。日志保存在 $LOG_DIR 下。"
+echo "Sampling completed. Logs saved in $LOG_DIR."

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-source ~/airship/install/local_setup.bash  # 如果你用的是自定义 workspace
+source ~/airship/install/local_setup.bash  # If you're using a custom workspace
 
-echo "Enter your instrucitons："
+echo "Enter your instructions:"
 read -r MSG
 
 if [ -z "$MSG" ]; then

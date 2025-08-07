@@ -5,11 +5,11 @@ cpu_list, gpu_list, ram_list = [], [], []
 
 with open('log/tegrastats.log') as f:
     for line in f:
-        # CPU: 提取所有 xx%@xxx
+        # CPU: Extract all xx%@xxx
         cpu_matches = re.findall(r'(\d+)%@\d+', line)
         cpu_vals = [int(x) for x in cpu_matches]
         if cpu_vals:
-            cpu_list.append(sum(cpu_vals) / len(cpu_vals))  # 取均值
+            cpu_list.append(sum(cpu_vals) / len(cpu_vals))  # Take average
         # GPU: GR3D_FREQ xx%
         gpu_match = re.search(r'GR3D_FREQ (\d+)%', line)
         if gpu_match:
